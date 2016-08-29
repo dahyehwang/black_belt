@@ -1,0 +1,42 @@
+<h1>Hi <%= current_user.name %>!</h1>
+
+<form action="/submit_post" method="post">
+	<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+	<input type="hidden" name="user_id" value="<%= current_user.id %>" />
+	<textarea type="text" name="idea" cols="70" rows="3" style="overflow: scroll" placeholder="Post something witty here..."></textarea>
+	<input type="submit" name="submit_idea" value="Idea!" />
+</form>
+<br>
+<br>
+<% @posts.each do |post| %>
+	<p><a href="/users/<%= post.user_id %>"><%= post.user.name %></a> says: <%= post.idea %></p>
+
+	<% if post.user_id == current_user.id %>
+		<form action='/posts/<%= post.id %>' method="post">
+			<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+			<input type="hidden" name="user_id" value="<%= current_user.id %>" />
+			<input type="hidden" name="_method" value="delete" />	
+			<input type="submit" name="delete" value="Delete" />	
+		</form>
+	<% end %>
+
+	<% if post.users_liked.include? (current_user) %>
+		<form action='/likes/<%= current_user.id %>' method='post'>
+	      <input type='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'>
+	      <input type="hidden" name="post_id" value="<%= post.id %>" />
+	      <input type='hidden' name='_method' value='delete'>
+	      <input type='submit' value='Unlike'>
+	    </form>
+	<% else %>
+		<form action='/likes' method='post'>
+		  <input type='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'>
+		  <input type='hidden' name='post_id' value='<%= post.id %>'>
+		  <input type='submit' value='Like'>
+		</form>
+	<% end %>
+
+
+
+	<p><a href="/bright_ideas/<%= post.id %>"><%= post.likes.count %>people</a> like this.</p>
+	<hr>
+<% end %>
